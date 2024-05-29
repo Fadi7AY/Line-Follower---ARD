@@ -1,0 +1,102 @@
+// Pin definitions
+#define ENA 5
+#define IN1 6
+#define IN2 7
+#define IN3 8
+#define IN4 9
+#define ENB 10
+
+#define S5 A0
+#define S4 A1
+#define S3 A2
+#define S2 A3
+#define S1 A4
+
+void setup() {
+  pinMode(ENA, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(ENB, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+
+  pinMode(S5, INPUT);
+  pinMode(S4, INPUT);
+  pinMode(S3, INPUT);
+  pinMode(S2, INPUT);
+  pinMode(S1, INPUT);
+
+  Serial.begin(9600); // Optional: for debugging
+}
+
+void loop() {
+  int s1 = digitalRead(S1);
+  int s2 = digitalRead(S2);
+  int s3 = digitalRead(S3);
+  int s4 = digitalRead(S4);
+  int s5 = digitalRead(S5);
+  
+  // Default motor speed values
+  int leftSpeed = 0;
+  int rightSpeed = 0;
+
+  // Set direction for both motors to forward
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+
+  // Nested if statements to check sensor values and determine motor speeds
+  if (s1 == HIGH && s2 == HIGH && s3 == HIGH && s4 == HIGH && s5 == HIGH) {
+    // All sensors detect the line, stop the robot
+    leftSpeed = 0;
+    rightSpeed = 0;
+  } else if (s3 == HIGH) {
+    if (s2 == LOW && s4 == LOW) {
+      // Only middle sensor detects the line
+      leftSpeed = 150;
+      rightSpeed = 150;
+    } else if (s2 == HIGH) {
+      // Left middle and center sensor detect the line
+      leftSpeed = 150;
+      rightSpeed = 100;
+    } else if (s4 == HIGH) {
+      // Right middle and center sensor detect the line
+      leftSpeed = 100;
+      rightSpeed = 150;
+    }
+  } else if (s1 == HIGH) {
+    // Far left sensor detects the line
+    leftSpeed = 100;
+    rightSpeed = 50;
+  } else if (s2 == HIGH) {
+    // Left middle sensor detects the line
+    leftSpeed = 100;
+    rightSpeed = 75;
+  } else if (s4 == HIGH) {
+    // Right middle sensor detects the line
+    leftSpeed = 75;
+    rightSpeed = 100;
+  } else if (s5 == HIGH) {
+    // Far right sensor detects the line
+    leftSpeed = 50;
+    rightSpeed = 100;
+  } else {
+    // No sensors detect the line, stop the motors
+    leftSpeed = 0;
+    rightSpeed = 0;
+  }
+
+  // Debugging output (optional)
+  Serial.print("S1: "); Serial.print(s1);
+  Serial.print(" S2: "); Serial.print(s2);
+  Serial.print(" S3: "); Serial.print(s3);
+  Serial.print(" S4: "); Serial.print(s4);
+  Serial.print(" S5: "); Serial.println(s5);
+  
+  // Set motor speeds using PWM (analogWrite)
+  analogWrite(ENA, leftSpeed);
+  analogWrite(ENB, rightSpeed);
+  
+  delay(10);
+}
