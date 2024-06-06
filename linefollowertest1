@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 // Pin definitions
 #define ENA 5
 #define IN1 6
@@ -11,6 +13,16 @@
 #define S3 A2
 #define S2 A3
 #define S1 A4
+
+float Kp = 0, Ki = 0, Kd = 0;
+float error = 0, P = 0, I = 0, D = 0, PID_value = 0;
+float previous_error = 0, previous_I = 0;
+int sensor[5] = {0, 0, 0, 0, 0};
+int initial_motor_speed = 150;
+
+void read_sensor_values(void);
+void calculate_pid(void);
+void motor_control(void);
 
 void setup() {
   pinMode(ENA, OUTPUT);
@@ -26,77 +38,72 @@ void setup() {
   pinMode(S2, INPUT);
   pinMode(S1, INPUT);
 
-  Serial.begin(9600); // Optional: for debugging
+  Serial.begin(9600); // Enable Serial Communications
 }
 
 void loop() {
-  int s1 = digitalRead(S1);
-  int s2 = digitalRead(S2);
-  int s3 = digitalRead(S3);
-  int s4 = digitalRead(S4);
-  int s5 = digitalRead(S5);
-  
-  // Default motor speed values
-  int leftSpeed = 0;
-  int rightSpeed = 0;
+  read_sensor_values();
+  calculate_pid();
+  motor_control();
+}
 
-  // Set direction for both motors to forward
+void read_sensor_values() {
+  sensor[0] = digitalRead(S1);
+  sensor[1] = digitalRead(S2);
+  sensor[2] = digitalRead(S3);
+  sensor[3] = digitalRead(S4);
+  sensor[4] = digitalRead(S5);
+
+  if ((sensor[0] == 0) && (sensor[1] == 0) && (sensor[2] == 0) && (sensor[3] == 0) && (sensor[4] == 1))
+    error = 4;
+  else if ((sensor[0] == 0) && (sensor[1] == 0) && (sensor[2] == 0) && (sensor[3] == 1) && (sensor[4] == 1))
+    error = 3;
+  else if ((sensor[0] == 0) && (sensor[1] == 0) && (sensor[2] == 0) && (sensor[3] == 1) && (sensor[4] == 0))
+    error = 2;
+  else if ((sensor[0] == 0) && (sensor[1] == 0) && (sensor[2] == 1) && (sensor[3] == 1) && (sensor[4] == 0))
+    error = 1;
+  else if ((sensor[0] == 0) && (sensor[1] == 0) && (sensor[2] == 1) && (sensor[3] == 0) && (sensor[4] == 0))
+    error = 0;
+  else if ((sensor[0] == 0) && (sensor[1] == 1) && (sensor[2] == 1) && (sensor[3] == 0) && (sensor[4] == 0))
+    error = -1;
+  else if ((sensor[0] == 0) && (sensor[1] == 1) && (sensor[2] == 0) && (sensor[3] == 0) && (sensor[4] == 0))
+    error = -2;
+  else if ((sensor[0] == 1) && (sensor[1] == 1) && (sensor[2] == 0) && (sensor[3] == 0) && (sensor[4] == 0))
+    error = -3;
+  else if ((sensor[0] == 1) && (sensor[1] == 0) && (sensor[2] == 0) && (sensor[3] == 0) && (sensor[4] == 0))
+    error = -4;
+  else if ((sensor[0] == 0) && (sensor[1] == 0) && (sensor[2] == 0) && (sensor[3] == 0) && (sensor[4] == 0)) {
+    if (error == -4) error = -5;
+    else error = 5;
+  }
+}
+
+void calculate_pid() {
+  P = error;
+  I = I + previous_I;
+  D = error - previous_error;
+
+  PID_value = (Kp * P) + (Ki * I) + (Kd * D);
+
+  previous_I = I;
+  previous_error = error;
+}
+
+void motor_control() {
+  // Calculating the effective motor speed:
+  int left_motor_speed = initial_motor_speed - PID_value;
+  int right_motor_speed = initial_motor_speed + PID_value;
+
+  // The motor speed should not exceed the max PWM value
+  left_motor_speed = constrain(left_motor_speed, 0, 255);
+  right_motor_speed = constrain(right_motor_speed, 0, 255);
+
+  analogWrite(ENA, left_motor_speed);   // Left Motor Speed
+  analogWrite(ENB, right_motor_speed);  // Right Motor Speed
+
+  // Set motor direction
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
-
-  // Nested if statements to check sensor values and determine motor speeds
-  if (s1 == HIGH && s2 == HIGH && s3 == HIGH && s4 == HIGH && s5 == HIGH) {
-    // All sensors detect the line, stop the robot
-    leftSpeed = 0;
-    rightSpeed = 0;
-  } else if (s3 == HIGH) {
-    if (s2 == LOW && s4 == LOW) {
-      // Only middle sensor detects the line
-      leftSpeed = 150;
-      rightSpeed = 150;
-    } else if (s2 == HIGH) {
-      // Left middle and center sensor detect the line
-      leftSpeed = 150;
-      rightSpeed = 100;
-    } else if (s4 == HIGH) {
-      // Right middle and center sensor detect the line
-      leftSpeed = 100;
-      rightSpeed = 150;
-    }
-  } else if (s1 == HIGH) {
-    // Far left sensor detects the line
-    leftSpeed = 100;
-    rightSpeed = 50;
-  } else if (s2 == HIGH) {
-    // Left middle sensor detects the line
-    leftSpeed = 100;
-    rightSpeed = 75;
-  } else if (s4 == HIGH) {
-    // Right middle sensor detects the line
-    leftSpeed = 75;
-    rightSpeed = 100;
-  } else if (s5 == HIGH) {
-    // Far right sensor detects the line
-    leftSpeed = 50;
-    rightSpeed = 100;
-  } else {
-    // No sensors detect the line, stop the motors
-    leftSpeed = 0;
-    rightSpeed = 0;
-  }
-
-  // Debugging output (optional)
-  Serial.print("S1: "); Serial.print(s1);
-  Serial.print(" S2: "); Serial.print(s2);
-  Serial.print(" S3: "); Serial.print(s3);
-  Serial.print(" S4: "); Serial.print(s4);
-  Serial.print(" S5: "); Serial.println(s5);
-  
-  // Set motor speeds using PWM (analogWrite)
-  analogWrite(ENA, leftSpeed);
-  analogWrite(ENB, rightSpeed);
-  
-  delay(10);
 }
