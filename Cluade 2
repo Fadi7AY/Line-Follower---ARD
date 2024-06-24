@@ -1,0 +1,78 @@
+// Pin definitions (adjust if necessary)
+#define ENA 5
+#define IN1 6
+#define IN2 7
+#define IN3 8
+#define IN4 9
+#define ENB 10
+#define S5 A0
+#define S4 A1
+#define S3 A2
+#define S2 A3
+#define S1 A4
+
+#define NUM_SENSORS 5
+int sensorPins[NUM_SENSORS] = {S1, S2, S3, S4, S5};
+int sensorMin[NUM_SENSORS];
+int sensorMax[NUM_SENSORS];
+
+#define NORMAL_SPEED 150
+#define TURN_SPEED 120
+
+void setup() {
+  // Motor setup
+  pinMode(ENA, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(ENB, OUTPUT);
+
+  // Sensor setup
+  for (int i = 0; i < NUM_SENSORS; i++) {
+    pinMode(sensorPins[i], INPUT);
+  }
+
+  // Calibration
+  calibrateSensors();
+}
+
+void loop() {
+  int sensorValues[NUM_SENSORS];
+  readSensors(sensorValues);
+
+  if (sensorValues[2] < 500) {  // Center sensor
+    moveForward(NORMAL_SPEED, NORMAL_SPEED);
+  } else if (sensorValues[3] < 500 || sensorValues[4] < 500) {  // Right sensors
+    turnRight();
+  } else if (sensorValues[1] < 500 || sensorValues[0] < 500) {  // Left sensors
+    turnLeft();
+  } else {
+    stop();
+  }
+}
+
+void calibrateSensors() {
+  // Calibration routine
+  for (int i = 0; i < NUM_SENSORS; i++) {
+    sensorMin[i] = 1023;
+    sensorMax[i] = 0;
+  }
+
+  for (int j = 0; j < 10000; j++) {
+    for (int i = 0; i < NUM_SENSORS; i++) {
+      int value = analogRead(sensorPins[i]);
+      sensorMin[i] = min(sensorMin[i], value);
+      sensorMax[i] = max(sensorMax[i], value);
+    }
+  }
+}
+
+void readSensors(int* values) {
+  for (int i = 0; i < NUM_SENSORS; i++) {
+    int raw = analogRead(sensorPins[i]);
+    values[i] = map(raw, sensorMin[i], sensorMax[i], 0, 1000);
+  }
+}
+
+// Motor control functions (moveForward, turnLeft, turnRight, stop) remain the same
