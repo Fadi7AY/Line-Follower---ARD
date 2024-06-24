@@ -1,0 +1,142 @@
+#define MOTOR1_EN 3   // Enable pin for motor 1      /RIGHT
+#define MOTOR1_IN1 2  // Input 1 pin for motor 1
+#define MOTOR1_IN2 4  // Input 2 pin for motor 1
+
+#define MOTOR2_EN 5  // Enable pin for motor 2       //LEFT
+#define MOTOR2_IN1 6 // Input 1 pin for motor 2
+#define MOTOR2_IN2 7 // Input 2 pin for motor 2
+
+#define IR_SENSOR_LEFT_LEFT 9 // Most Left IR sensor pin
+#define IR_SENSOR_LEFT 10 // Left IR sensor pin
+#define IR_SENSOR_CENTER 11 // Center IR sensor pin
+#define IR_SENSOR_RIGHT 12 // Right IR sensor pin
+#define IR_SENSOR_RIGHT_RIGHT 13 // Most Right IR sensor pin
+
+void setup() {
+  pinMode(MOTOR1_EN, OUTPUT);
+  pinMode(MOTOR1_IN1, OUTPUT);
+  pinMode(MOTOR1_IN2, OUTPUT);
+  pinMode(MOTOR2_EN, OUTPUT);
+  pinMode(MOTOR2_IN1, OUTPUT);
+  pinMode(MOTOR2_IN2, OUTPUT);
+
+  pinMode(IR_SENSOR_LEFT_LEFT, INPUT);
+  pinMode(IR_SENSOR_LEFT, INPUT);
+  pinMode(IR_SENSOR_CENTER, INPUT);
+  pinMode(IR_SENSOR_RIGHT, INPUT);
+  pinMode(IR_SENSOR_RIGHT_RIGHT, INPUT);
+
+  digitalWrite(MOTOR1_IN1, HIGH);
+  digitalWrite(MOTOR1_IN2, LOW);
+
+  digitalWrite(MOTOR2_IN1, LOW);
+  digitalWrite(MOTOR2_IN2, HIGH);
+}
+
+void loop() 
+{ 
+  int leftLeftSensorValue = digitalRead(IR_SENSOR_LEFT_LEFT);
+  int leftSensorValue = digitalRead(IR_SENSOR_LEFT);
+  int centerSensorValue = digitalRead(IR_SENSOR_CENTER);
+  int rightSensorValue = digitalRead(IR_SENSOR_RIGHT);
+  int rightRightSensorValue = digitalRead(IR_SENSOR_RIGHT_RIGHT);
+  
+  // Determine surface color based on sensor readings
+  // 1 for white, 0 for black
+  int leftLeftColor = (leftLeftSensorValue == HIGH) ? 1 : 0;
+  int leftColor = (leftSensorValue == HIGH) ? 1 : 0;
+  int centerColor = (centerSensorValue == HIGH) ? 1 : 0;
+  int rightColor = (rightSensorValue == HIGH) ? 1 : 0; 
+  int rightRightColor = (rightRightSensorValue == HIGH) ? 1 : 0;
+  
+  if (leftLeftColor == 1 && leftColor == 0 && centerColor == 0 && rightColor == 1 && rightRightColor == 1)
+  {
+    //GO SLIGHTLY LEFT
+      analogWrite(MOTOR1_EN, 110);
+      analogWrite(MOTOR2_EN, 95);
+  }
+  else if (leftLeftColor == 1 && leftColor == 1 && centerColor == 0 && rightColor == 0 && rightRightColor == 1)
+  {
+    //GO SLIGHTLY RIGHT!
+      analogWrite(MOTOR1_EN, 95);
+      analogWrite(MOTOR2_EN, 110);
+  }
+   else if (leftLeftColor == 1 && leftColor == 0 && centerColor == 1 && rightColor == 1 && rightRightColor == 1)
+  {
+    //GO MORE SLIGHTLY LEFT
+      analogWrite(MOTOR1_EN, 140);
+      analogWrite(MOTOR2_EN, 110);
+  }
+  else if (leftLeftColor == 1 && leftColor == 1 && centerColor == 1 && rightColor == 0 && rightRightColor == 1)
+  {
+    //GO MORE SLIGHTLY RIGHT!
+      analogWrite(MOTOR1_EN, 110);
+      analogWrite(MOTOR2_EN, 140);
+  }
+  else if (leftLeftColor == 0 && leftColor == 0 && centerColor == 1 && rightColor == 1 && rightRightColor == 1)
+  {
+    //GO MORE LEFT
+      analogWrite(MOTOR1_EN,200);
+      analogWrite(MOTOR2_EN, 70);
+  }
+  else if (leftLeftColor == 1 && leftColor == 1 && centerColor == 1 && rightColor == 0 && rightRightColor == 0)
+  {
+    //GO MORE RIGHT!
+      analogWrite(MOTOR1_EN, 60);
+      analogWrite(MOTOR2_EN, 210);
+  }
+  else if (leftLeftColor == 0 && leftColor == 0 && centerColor == 0 && rightColor == 1 && rightRightColor == 1)
+  {
+    // GO 90 DEGREES LEFT
+    delay(1000);
+    
+    int leftLeftSensorValue = digitalRead(IR_SENSOR_LEFT_LEFT);
+    int leftSensorValue = digitalRead(IR_SENSOR_LEFT);
+    int centerSensorValue = digitalRead(IR_SENSOR_CENTER);
+    int rightSensorValue = digitalRead(IR_SENSOR_RIGHT);
+    int rightRightSensorValue = digitalRead(IR_SENSOR_RIGHT_RIGHT);
+
+    int leftLeftColor = (leftLeftSensorValue == HIGH) ? 1 : 0;
+    int leftColor = (leftSensorValue == HIGH) ? 1 : 0;
+    int centerColor = (centerSensorValue == HIGH) ? 1 : 0;
+    int rightColor = (rightSensorValue == HIGH) ? 1 : 0; 
+    int rightRightColor = (rightRightSensorValue == HIGH) ? 1 : 0;
+  
+    if (leftLeftColor == 1 && leftColor == 1 && centerColor == 1 && rightColor == 1 && rightRightColor == 1)
+    {
+      analogWrite(MOTOR1_EN, 150);
+      analogWrite(MOTOR2_EN, 0);
+      delay(400);
+    }       
+  }
+  else if (leftLeftColor == 1 && leftColor == 1 && centerColor == 0 && rightColor == 0 && rightRightColor == 0)
+  {
+    // GO 90 DEGREES RIGHT
+    delay(1000);
+    
+    int leftLeftSensorValue = digitalRead(IR_SENSOR_LEFT_LEFT);
+    int leftSensorValue = digitalRead(IR_SENSOR_LEFT);
+    int centerSensorValue = digitalRead(IR_SENSOR_CENTER);
+    int rightSensorValue = digitalRead(IR_SENSOR_RIGHT);
+    int rightRightSensorValue = digitalRead(IR_SENSOR_RIGHT_RIGHT);
+
+    int leftLeftColor = (leftLeftSensorValue == HIGH) ? 1 : 0;
+    int leftColor = (leftSensorValue == HIGH) ? 1 : 0;
+    int centerColor = (centerSensorValue == HIGH) ? 1 : 0;
+    int rightColor = (rightSensorValue == HIGH) ? 1 : 0; 
+    int rightRightColor = (rightRightSensorValue == HIGH) ? 1 : 0;
+  
+    if (leftLeftColor == 1 && leftColor == 1 && centerColor == 1 && rightColor == 1 && rightRightColor == 1)
+    {    
+      analogWrite(MOTOR1_EN, 0);
+      analogWrite(MOTOR2_EN, 150);
+      delay(400);
+    }
+  }
+  else
+  {
+    //GO STRIGHT
+      analogWrite(MOTOR1_EN, 110);
+      analogWrite(MOTOR2_EN, 110);
+  }
+}
