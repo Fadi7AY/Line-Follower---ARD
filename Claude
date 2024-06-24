@@ -1,0 +1,89 @@
+// Pin definitions
+#define ENA 5
+#define IN1 6
+#define IN2 7
+#define IN3 8
+#define IN4 9
+#define ENB 10
+#define S5 A0
+#define S4 A1
+#define S3 A2
+#define S2 A3
+#define S1 A4
+
+// Sensor threshold (adjust as needed)
+#define THRESHOLD 500
+
+void setup() {
+  // Set motor control pins as outputs
+  pinMode(ENA, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(ENB, OUTPUT);
+  
+  // Set sensor pins as inputs
+  pinMode(S1, INPUT);
+  pinMode(S2, INPUT);
+  pinMode(S3, INPUT);
+  pinMode(S4, INPUT);
+  pinMode(S5, INPUT);
+  
+  // Set initial motor speed
+  analogWrite(ENA, 150);
+  analogWrite(ENB, 150);
+}
+
+void loop() {
+  int s1 = analogRead(S1);
+  int s2 = analogRead(S2);
+  int s3 = analogRead(S3);
+  int s4 = analogRead(S4);
+  int s5 = analogRead(S5);
+  
+  // Line is under the middle sensor
+  if (s3 < THRESHOLD) {
+    moveForward();
+  }
+  // Line is under the left sensors
+  else if (s1 < THRESHOLD || s2 < THRESHOLD) {
+    turnLeft();
+  }
+  // Line is under the right sensors
+  else if (s4 < THRESHOLD || s5 < THRESHOLD) {
+    turnRight();
+  }
+  // No line detected, stop
+  else {
+    stop();
+  }
+}
+
+void moveForward() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void turnLeft() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void turnRight() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}
+
+void stop() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}
