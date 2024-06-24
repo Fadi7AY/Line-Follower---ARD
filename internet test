@@ -122,11 +122,11 @@ void changeMotorSpeed() {
   // Constrain the new speed of motors to be between the range 0-255
   motor2newSpeed = constrain(motor2newSpeed, 0, 255);
   motor1newSpeed = constrain(motor1newSpeed, 0, 255);
-  // Set new speed, and run motors in forward direction
+  // Set new speed, and run motors in reverse direction
   analogWrite(ENA, motor1newSpeed);
   analogWrite(ENB, motor2newSpeed);
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
 }
