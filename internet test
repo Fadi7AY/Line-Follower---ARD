@@ -1,13 +1,4 @@
-float pTerm, iTerm, dTerm;
-int error;
-int previousError;
-float  kp = 11; //11
-float ki = 0;
-float kd = 11; //11
-float output;
-int integral,  derivative;
-int irSensors[] = {A0, A1, A2, A3, A4}; //IR sensor pins
-int irReadings[5];
+// Pin definitions
 #define ENA 5
 #define IN1 6
 #define IN2 7
@@ -21,13 +12,22 @@ int irReadings[5];
 #define S2 A3
 #define S1 A4
 
-int  motor1newSpeed;
+// PID control variables
+float pTerm, iTerm, dTerm;
+int error;
+int previousError;
+float kp = 11; // PID proportional gain
+float ki = 0; // PID integral gain
+float kd = 11; // PID derivative gain
+float output;
+int integral, derivative;
+int motor1newSpeed;
 int motor2newSpeed;
-int motor2Speed = 70; //Default 70
-int  motor1Speed = 120; //Default 120
+int motor2Speed = 70; // Default speed for motor 2
+int motor1Speed = 120; // Default speed for motor 1
 
 void setup() {
-
+  // Set motor pins as outputs
   pinMode(ENA, OUTPUT);
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
@@ -35,80 +35,98 @@ void setup() {
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
 
+  // Set sensor pins as inputs
   pinMode(S5, INPUT);
   pinMode(S4, INPUT);
   pinMode(S3, INPUT);
   pinMode(S2, INPUT);
   pinMode(S1, INPUT);
 
+  Serial.begin(9600); // Optional: for debugging
 }
 
-void  loop() {
-  //Put all of our functions here
-  readIRSensors();
-  calculateError();
+void loop() {
+  int s1 = digitalRead(S1);
+  int s2 = digitalRead(S2);
+  int s3 = digitalRead(S3);
+  int s4 = digitalRead(S4);
+  int s5 = digitalRead(S5);
+
+  // Read the IR sensors and put the readings in an array
+  int irReadings[] = {s1, s2, s3, s4, s5};
+  
+  // Calculate the error based on sensor readings
+  calculateError(irReadings);
+  
+  // Calculate PID output
   pidCalculations();
+  
+  // Change motor speed based on PID output
   changeMotorSpeed();
+
+  // Debugging output (optional)
+  Serial.print("S1: "); Serial.print(s1);
+  Serial.print(" S2: "); Serial.print(s2);
+  Serial.print(" S3: "); Serial.print(s3);
+  Serial.print(" S4: "); Serial.print(s4);
+  Serial.print(" S5: "); Serial.println(s5);
+
+  delay(10);
 }
 
-void readIRSensors() {
-  //Read the IR sensors and put the readings in irReadings array
-  for (int pin  = 0; pin < 5; pin++) {
-    int pinNum = irSensors[pin];
-    irReadings[pin]  = digitalRead(pinNum);
-  }
-}
-
-void calculateError() {
-  //Determine  an error based on the readings
-  if ((irReadings[0] == 0) && (irReadings[1] ==  0) && (irReadings[2] == 0) && (irReadings[3] == 0) && (irReadings[4] == 1)) {
+void calculateError(int irReadings[]) {
+  // Determine an error based on the readings
+  if ((irReadings[0] == 0) && (irReadings[1] == 0) && (irReadings[2] == 0) && (irReadings[3] == 0) && (irReadings[4] == 1)) {
     error = 4;
-  } else if ((irReadings[0] == 0) && (irReadings[1] == 0) && (irReadings[2]  == 0) && (irReadings[3] == 1) && (irReadings[4] == 1)) {
+  } else if ((irReadings[0] == 0) && (irReadings[1] == 0) && (irReadings[2] == 0) && (irReadings[3] == 1) && (irReadings[4] == 1)) {
     error = 3;
-  }  else if ((irReadings[0] == 0) && (irReadings[1] == 0) && (irReadings[2] == 0) &&  (irReadings[3] == 1) && (irReadings[4] == 0)) {
+  } else if ((irReadings[0] == 0) && (irReadings[1] == 0) && (irReadings[2] == 0) && (irReadings[3] == 1) && (irReadings[4] == 0)) {
     error = 2;
-  } else if  ((irReadings[0] == 0) && (irReadings[1] == 0) && (irReadings[2] == 1) && (irReadings[3]  == 1) && (irReadings[4] == 0)) {
+  } else if ((irReadings[0] == 0) && (irReadings[1] == 0) && (irReadings[2] == 1) && (irReadings[3] == 1) && (irReadings[4] == 0)) {
     error = 1;
-  } else if ((irReadings[0]  == 0) && (irReadings[1] == 0) && (irReadings[2] == 1) && (irReadings[3] == 0) &&  (irReadings[4] == 0)) {
+  } else if ((irReadings[0] == 0) && (irReadings[1] == 0) && (irReadings[2] == 1) && (irReadings[3] == 0) && (irReadings[4] == 0)) {
     error = 0;
-  } else if ((irReadings[0] == 0) &&  (irReadings[1] == 1) && (irReadings[2] == 1) && (irReadings[3] == 0) && (irReadings[4]  == 0)) {
+  } else if ((irReadings[0] == 0) && (irReadings[1] == 1) && (irReadings[2] == 1) && (irReadings[3] == 0) && (irReadings[4] == 0)) {
     error = -1;
-  } else if ((irReadings[0] == 0) && (irReadings[1]  == 1) && (irReadings[2] == 0) && (irReadings[3] == 0) && (irReadings[4] == 0)) {
+  } else if ((irReadings[0] == 0) && (irReadings[1] == 1) && (irReadings[2] == 0) && (irReadings[3] == 0) && (irReadings[4] == 0)) {
     error = -2;
-  } else if ((irReadings[0] == 1) && (irReadings[1] == 1) &&  (irReadings[2] == 0) && (irReadings[3] == 0) && (irReadings[4] == 0)) {
-    error  = -3;
-  } else if ((irReadings[0] == 1) && (irReadings[1] == 0) && (irReadings[2]  == 0) && (irReadings[3] == 0) && (irReadings[4] == 0)) {
+  } else if ((irReadings[0] == 1) && (irReadings[1] == 1) && (irReadings[2] == 0) && (irReadings[3] == 0) && (irReadings[4] == 0)) {
+    error = -3;
+  } else if ((irReadings[0] == 1) && (irReadings[1] == 0) && (irReadings[2] == 0) && (irReadings[3] == 0) && (irReadings[4] == 0)) {
     error = -4;
-  } else if ((irReadings[0] == 0) && (irReadings[1] == 0) && (irReadings[2] == 0)  && (irReadings[3] == 0) && (irReadings[4] == 0)) {
-    if (previousError == -4)  {
+  } else if ((irReadings[0] == 0) && (irReadings[1] == 0) && (irReadings[2] == 0) && (irReadings[3] == 0) && (irReadings[4] == 0)) {
+    if (previousError == -4) {
       error = -5;
     } else {
       error = 5;
     }
-  } else  if ((irReadings[0] == 1) && (irReadings[1] == 1) && (irReadings[2] == 1) && (irReadings[3]  == 1) && (irReadings[4] == 1)) {
+  } else if ((irReadings[0] == 1) && (irReadings[1] == 1) && (irReadings[2] == 1) && (irReadings[3] == 1) && (irReadings[4] == 1)) {
     error = 0;
   }
 }
 
-void pidCalculations()  {
+void pidCalculations() {
   pTerm = kp * error;
   integral += error;
   iTerm = ki * integral;
   derivative = error - previousError;
   dTerm = kd * derivative;
-  output  = pTerm + iTerm + dTerm;
+  output = pTerm + iTerm + dTerm;
   previousError = error;
 }
 
-void changeMotorSpeed()  {
-  //Change motor speed of both motors accordingly
-  motor2newSpeed = motor2Speed  + output;
+void changeMotorSpeed() {
+  // Change motor speed of both motors accordingly
+  motor2newSpeed = motor2Speed + output;
   motor1newSpeed = motor1Speed - output;
-  //Constrain the new speed  of motors to be between the range 0-255
-  constrain(motor2newSpeed, 0, 255);
-  constrain(motor1newSpeed, 0, 255);
-  //Set new speed, and run motors in forward  direction
-   analogWrite(ENA, motor2newSpeed);
-  analogWrite(ENB, motor1newSpeed);
+  // Constrain the new speed of motors to be between the range 0-255
+  motor2newSpeed = constrain(motor2newSpeed, 0, 255);
+  motor1newSpeed = constrain(motor1newSpeed, 0, 255);
+  // Set new speed, and run motors in forward direction
+  analogWrite(ENA, motor1newSpeed);
+  analogWrite(ENB, motor2newSpeed);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
 }
-
