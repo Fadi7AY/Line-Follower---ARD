@@ -1,16 +1,16 @@
-#define MOTOR1_EN 3   // Enable pin for motor 1      /RIGHT
-#define MOTOR1_IN1 2  // Input 1 pin for motor 1
-#define MOTOR1_IN2 4  // Input 2 pin for motor 1
+#define MOTOR1_EN 10   // Enable pin for motor 1      /RIGHT
+#define MOTOR1_IN1 8  // Input 1 pin for motor 1
+#define MOTOR1_IN2 9  // Input 2 pin for motor 1
 
 #define MOTOR2_EN 5  // Enable pin for motor 2       //LEFT
 #define MOTOR2_IN1 6 // Input 1 pin for motor 2
 #define MOTOR2_IN2 7 // Input 2 pin for motor 2
 
-#define IR_SENSOR_LEFT_LEFT 9 // Most Left IR sensor pin
-#define IR_SENSOR_LEFT 10 // Left IR sensor pin
-#define IR_SENSOR_CENTER 11 // Center IR sensor pin
-#define IR_SENSOR_RIGHT 12 // Right IR sensor pin
-#define IR_SENSOR_RIGHT_RIGHT 13 // Most Right IR sensor pin
+#define IR_SENSOR_LEFT_LEFT A0 // Most Left IR sensor pin
+#define IR_SENSOR_LEFT A1 // Left IR sensor pin
+#define IR_SENSOR_CENTER A2 // Center IR sensor pin
+#define IR_SENSOR_RIGHT A3 // Right IR sensor pin
+#define IR_SENSOR_RIGHT_RIGHT A4 // Most Right IR sensor pin
 
 void setup() {
   pinMode(MOTOR1_EN, OUTPUT);
