@@ -28,9 +28,9 @@ void setup() {
   pinMode(S4, INPUT);
   pinMode(S5, INPUT);
 
-  // Initialize motors
-  analogWrite(ENA, 255); // Full speed
-  analogWrite(ENB, 255); // Full speed
+  // Initialize motors at 50% speed
+  analogWrite(ENA, 128); // 50% speed
+  analogWrite(ENB, 128); // 50% speed
 }
 
 void loop() {
@@ -44,14 +44,14 @@ void loop() {
   // Determine direction based on sensor readings
   if (s1 == LOW && s2 == LOW && s3 == HIGH && s4 == LOW && s5 == LOW) { // Middle sensor on line
     forward();
-  } else if (s1 == LOW && s2 == HIGH && s3 == HIGH && s4 == LOW && s5 == LOW) { // Slight left
-    slightLeft();
-  } else if (s1 == HIGH && s2 == HIGH && s3 == LOW && s4 == LOW && s5 == LOW) { // Hard left
-    turnLeft();
   } else if (s1 == LOW && s2 == LOW && s3 == HIGH && s4 == HIGH && s5 == LOW) { // Slight right
     slightRight();
   } else if (s1 == LOW && s2 == LOW && s3 == LOW && s4 == HIGH && s5 == HIGH) { // Hard right
     turnRight();
+  } else if (s1 == LOW && s2 == HIGH && s3 == HIGH && s4 == LOW && s5 == LOW) { // Slight left
+    slightLeft();
+  } else if (s1 == HIGH && s2 == HIGH && s3 == LOW && s4 == LOW && s5 == LOW) { // Hard left
+    turnLeft();
   } else if (s1 == HIGH && s2 == HIGH && s3 == HIGH && s4 == HIGH && s5 == HIGH) { // Line lost
     stop();
   } else if (s1 == LOW && s2 == LOW && s3 == LOW && s4 == LOW && s5 == LOW) { // All sensors on line (possibly at a junction)
@@ -62,38 +62,38 @@ void loop() {
 }
 
 void forward() {
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
 }
 
 void slightLeft() {
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, HIGH);
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
 }
 
 void turnLeft() {
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, HIGH);
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, HIGH);
-}
-
-void slightRight() {
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, HIGH);
-}
-
-void turnRight() {
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
+}
+
+void slightRight() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void turnRight() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
 }
 
 void stop() {
