@@ -1,0 +1,189 @@
+#define THRESHOLD 400
+
+// Motor Pins
+#define LM1 9  // Left motor
+#define LM2 8  // Left motor
+#define ENA 10
+#define RM1 6  // Right motor
+#define RM2 7  // Right motor
+#define ENB 5
+
+// Sensor Pins
+int Out1 = A0;
+int Out2 = A1;
+int Out3 = A2;
+int Out4 = A3;
+int Out5 = A5;
+
+// Sensor values initialization
+int Sensor1 = 0;
+int Sensor2 = 0;
+int Sensor3 = 0;
+int Sensor4 = 0;
+int Sensor5 = 0;
+
+// Function Declarations
+void MoveForward(void);
+void MoveRight(void);
+void MoveLeft(void);
+void MoveBack(void);
+void MoveSRight(void);
+void MoveSLeft(void);
+void Stop(void);
+void TurnRight90(void);
+void TurnLeft90(void);
+
+void setup() {
+  pinMode(LM1, OUTPUT);
+  pinMode(LM2, OUTPUT);
+  pinMode(RM1, OUTPUT);
+  pinMode(RM2, OUTPUT);
+  pinMode(ENA, OUTPUT);
+  pinMode(ENB, OUTPUT);
+
+  pinMode(Out1, INPUT);
+  pinMode(Out2, INPUT);
+  pinMode(Out3, INPUT);
+  pinMode(Out4, INPUT);
+  pinMode(Out5, INPUT);
+
+  Serial.begin(9600); 
+}
+
+void loop() {
+  Sensor1 = analogRead(Out1);
+  Sensor2 = analogRead(Out2);
+  Sensor3 = analogRead(Out3);
+  Sensor4 = analogRead(Out4);
+  Sensor5 = analogRead(Out5);
+
+  // White = 0, Black = 1
+  Sensor1 = Sensor1 > THRESHOLD ? 0 : 1;
+  Sensor2 = Sensor2 > THRESHOLD ? 0 : 1;
+  Sensor3 = Sensor3 > THRESHOLD ? 0 : 1;
+  Sensor4 = Sensor4 > THRESHOLD ? 0 : 1;
+  Sensor5 = Sensor5 > THRESHOLD ? 0 : 1;
+
+  if (!Sensor1 && !Sensor5) {  // 2 sensors work
+    if (!Sensor2 && !Sensor3 && !Sensor4)
+      MoveBack();
+    else {
+      if (Sensor3)
+        MoveForward();
+      else if (Sensor2 && !Sensor4)
+        MoveLeft();
+      else if (!Sensor2 && Sensor4)
+        MoveRight();
+      else
+        Stop();
+    }
+  } else {
+    if (Sensor1) {
+      TurnLeft90();  // make a 90-degree left turn
+    } else if (Sensor5) {
+      TurnRight90();  // make a 90-degree right turn
+    } else if (Sensor2) {
+      MoveSLeft();  // for minor adjustments
+    } else if (Sensor4) {
+      MoveSRight();  // for minor adjustments
+    } else {
+      Stop();
+    }
+  }
+
+  delay(5);
+}
+
+void MoveForward(void) {
+  analogWrite(ENA, 170);
+  analogWrite(ENB, 165);
+  digitalWrite(LM1, LOW);
+  digitalWrite(LM2, HIGH);
+  digitalWrite(RM1, LOW);
+  digitalWrite(RM2, HIGH);
+}
+
+void MoveBack(void) {
+  analogWrite(ENA, 130);
+  analogWrite(ENB, 130);
+  digitalWrite(LM1, HIGH);
+  digitalWrite(LM2, LOW);
+  digitalWrite(RM1, HIGH);
+  digitalWrite(RM2, LOW);
+  delay(1100);
+  Stop();
+}
+
+void MoveSRight(void) {
+  analogWrite(ENA, 140);
+  analogWrite(ENB, 200);
+  digitalWrite(LM1, HIGH);
+  digitalWrite(LM2, LOW);
+  digitalWrite(RM1, LOW);
+  digitalWrite(RM2, HIGH);
+  delay(40);
+}
+
+void MoveSLeft(void) {
+  analogWrite(ENA, 200);
+  analogWrite(ENB, 140);
+  digitalWrite(LM1, LOW);
+  digitalWrite(LM2, HIGH);
+  digitalWrite(RM1, HIGH); 
+  digitalWrite(RM2, LOW);
+  delay(40);
+}
+
+void MoveRight(void) {
+  analogWrite(ENA, 130);
+  analogWrite(ENB, 130);
+  digitalWrite(LM1, LOW); 
+  digitalWrite(LM2, LOW);
+  digitalWrite(RM1, LOW);
+  digitalWrite(RM2, HIGH);
+  delay(500);  // Adjust this delay for 90-degree turn
+  Stop();
+}
+
+void MoveLeft(void) {
+  analogWrite(ENA, 130);
+  analogWrite(ENB, 130);
+  digitalWrite(LM1, LOW);
+  digitalWrite(LM2, HIGH);
+  digitalWrite(RM1, LOW); 
+  digitalWrite(RM2, LOW);
+  delay(500);  // Adjust this delay for 90-degree turn
+  Stop();
+}
+
+void Stop(void) {
+  analogWrite(ENA, 0);
+  analogWrite(ENB, 0);
+  digitalWrite(LM1, LOW);
+  digitalWrite(LM2, LOW);
+  digitalWrite(RM1, LOW);
+  digitalWrite(RM2, LOW);
+  delay(20);
+}
+
+void TurnRight90(void) {
+  analogWrite(ENA, 130);
+  analogWrite(ENB, 130);
+  digitalWrite(LM1, LOW); 
+  digitalWrite(LM2, HIGH);
+  digitalWrite(RM1, HIGH);
+  digitalWrite(RM2, LOW);
+  delay(800);  // Adjust this delay for a precise 90-degree turn
+  Stop();
+}
+
+void TurnLeft90(void) {
+  analogWrite(ENA, 130);
+  analogWrite(ENB, 130);
+  digitalWrite(LM1, HIGH); 
+  digitalWrite(LM2, LOW);
+  digitalWrite(RM1, LOW);
+  digitalWrite(RM2, HIGH);
+  delay(800);  // Adjust this delay for a precise 90-degree turn
+  Stop();
+}
