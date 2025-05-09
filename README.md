@@ -68,12 +68,6 @@ You can open the **Serial Monitor** at 9600 baud to view sensor readings in real
 
 ---
 
-## 📸 Demo
-
-> *(Add a photo or video link here if available — e.g., GIF, YouTube demo, etc.)*
-
----
-
 ## 📄 License
 
 This project is open-source under the MIT License.
