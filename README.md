@@ -75,9 +75,4 @@ Feel free to use, modify, and share!
 
 ---
 
-If you want, I can also prepare:
-✅ A badge section (build status, license, etc.)
-✅ A troubleshooting section for common issues
-✅ A `CONTRIBUTING.md` or issues template
 
-Just let me know!
