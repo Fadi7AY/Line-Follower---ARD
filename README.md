@@ -1,4 +1,3 @@
-
 ---
 
 # Line Follower - ARD
@@ -8,6 +7,18 @@ This project is an **Arduino-based line-following robot** designed to follow a b
 The system reads the sensors and adjusts the motor speeds to keep the robot aligned on the line, enabling smooth and responsive navigation.
 
 ---
+
+## At a glance
+
+```mermaid
+flowchart LR
+    N0["IR sensors · A0–A4"]
+    N1["Arduino · sensor rules"]
+    N2["L298N motor driver"]
+    N3["Left and right motors"]
+    N0 --> N1 --> N2 --> N3
+```
+
 
 ## 🚀 Features
 
@@ -50,7 +61,7 @@ The five IR sensors detect the black line on a white surface:
 * **S3** (center) keeps the robot going straight.
 * **S1 & S2** guide left turns.
 * **S4 & S5** guide right turns.
-* When no sensors detect the line, the robot defaults to forward motion.
+* In `LineFollower1.ino`, when no sensors detect the line, both motors stop.
 
 The code uses **analogWrite()** for PWM motor speed control and **digitalWrite()** to set motor directions.
 
@@ -60,7 +71,7 @@ The code uses **analogWrite()** for PWM motor speed control and **digitalWrite()
 
 1. Connect all components as described in the wiring table.
 2. Install the [Arduino IDE](https://www.arduino.cc/en/software).
-3. Open the `line_follower.ino` sketch.
+3. Open the `LineFollower1.ino` sketch.
 4. Select your board and port in **Tools → Board / Port**.
 5. Upload the code to your Arduino.
 
@@ -74,5 +85,3 @@ This project is open-source under the MIT License.
 Feel free to use, modify, and share!
 
 ---
-
-
